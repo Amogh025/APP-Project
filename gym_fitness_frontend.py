@@ -9,9 +9,6 @@ from tkinter import ttk, messagebox
 from datetime import date
 import ctypes
 
-
-# Tell Windows to render this Tkinter window at the monitor's native DPI.
-# This prevents Windows from bitmap-scaling the interface, which can make text look soft.
 try:
     ctypes.windll.shcore.SetProcessDpiAwareness(1)
 except Exception:
