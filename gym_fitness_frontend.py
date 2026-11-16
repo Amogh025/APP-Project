@@ -1,9 +1,3 @@
-"""Gym & Fitness Membership Management System - Tkinter front-end prototype.
-
-All information is kept in memory for the current session only.
-Run with: python gym_fitness_frontend.py
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import date
