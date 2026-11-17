@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from datetime import date
 import ctypes
 
 try:
@@ -35,7 +34,6 @@ class GymApp(tk.Tk):
             ["M-1003", "Rohan Mehta", "Basic", "Expiring", "20 Nov 2026"],
             ["M-1004", "Kavya Iyer", "Premium", "Active", "07 Dec 2026"],
         ]
-        self.attendance = []
         self._styles()
         self._build_shell()
         self.show_page("Dashboard")
@@ -132,7 +130,7 @@ class GymApp(tk.Tk):
         cards = tk.Frame(wrap, bg=BG); cards.pack(fill="x")
         metrics = [("Total Members", str(len(self.members)), "+12 this month", TEAL),
                    ("Active Memberships", "186", "92% of members", "#3563B8"),
-                   ("Today's Check-ins", "64", "+18% vs yesterday", ORANGE),
+                   ("New Enquiries", "14", "+4 this week", ORANGE),
                    ("Monthly Revenue", "₹1,84,500", "+8.4% this month", "#8756C5")]
         for i, data in enumerate(metrics):
             c = self.card(cards, *data); c.grid(row=0, column=i, sticky="nsew", padx=(0 if i == 0 else 12, 0))
@@ -153,7 +151,7 @@ class GymApp(tk.Tk):
         right = tk.Frame(bottom, bg=WHITE, width=300, highlightbackground=LINE, highlightthickness=1)
         right.pack(side="right", fill="y"); right.pack_propagate(False)
         tk.Label(right, text="Recent Activity", bg=WHITE, fg=NAVY, font=("Segoe UI", 12, "bold")).pack(anchor="w", padx=20, pady=(18, 12))
-        for text, stamp, color in [("Aarav Sharma checked in", "10:24 AM", TEAL), ("New payment received", "09:46 AM", "#3563B8"), ("Rohan's plan expires soon", "09:12 AM", ORANGE), ("Kavya joined Premium", "Yesterday", "#8756C5")]:
+        for text, stamp, color in [("Aarav Sharma joined Premium", "10:24 AM", TEAL), ("New member profile created", "09:46 AM", "#3563B8"), ("Rohan's plan expires soon", "09:12 AM", ORANGE), ("Kavya joined Premium", "Yesterday", "#8756C5")]:
             r = tk.Frame(right, bg=WHITE); r.pack(fill="x", padx=20, pady=9)
             tk.Label(r, text="●", bg=WHITE, fg=color, font=("Segoe UI", 10)).pack(side="left")
             tx = tk.Frame(r, bg=WHITE); tx.pack(side="left", padx=8)
@@ -195,42 +193,9 @@ class GymApp(tk.Tk):
             for feature in features: tk.Label(card, text=f"✓  {feature}", bg=WHITE, fg=TEXT, font=("Segoe UI", 9)).pack(anchor="w", padx=22, pady=5)
             self.button(card, "Edit plan", lambda n=name: self.info("Plan selected", f"{n} plan editor opened (demo)."), False).pack(anchor="w", padx=22, pady=22)
 
-    def page_attendance(self):
-        wrap = tk.Frame(self.content, bg=BG); wrap.pack(fill="both", expand=True, padx=32, pady=25)
-        h = tk.Frame(wrap, bg=BG); h.pack(fill="x", pady=(0, 20))
-        self.section_header(h, "Attendance", "Track member check-ins for today").pack(side="left")
-        self.button(h, "✓  Record Check-in", self.open_checkin).pack(side="right")
-        total = self.card(wrap, "Today's Check-ins", str(64 + len(self.attendance)), "Live session count", TEAL); total.pack(fill="x", pady=(0, 20))
-        rows = self.attendance or [["Aarav Sharma", "M-1001", "10:24 AM", "Checked in"], ["Priya Nair", "M-1002", "09:58 AM", "Checked in"], ["Kavya Iyer", "M-1004", "09:16 AM", "Checked in"]]
-        self.member_table_page_attendance(wrap, rows)
-
-    def member_table_page_attendance(self, parent, rows):
-        box = tk.Frame(parent, bg=WHITE, highlightbackground=LINE, highlightthickness=1); box.pack(fill="both", expand=True)
-        cols = ["Member Name", "Member ID", "Check-in Time", "Status"]
-        tree = ttk.Treeview(box, columns=cols, show="headings")
-        for c in cols: tree.heading(c, text=c); tree.column(c, width=170, anchor="w")
-        for r in rows: tree.insert("", "end", values=r)
-        tree.pack(fill="both", expand=True, padx=1, pady=1)
-
-    def page_payments(self):
-        rows = [["INV-2026-042", "Aarav Sharma", "Premium", "₹2,199", "Paid"], ["INV-2026-041", "Priya Nair", "Gold", "₹1,499", "Paid"], ["INV-2026-040", "Rohan Mehta", "Basic", "₹999", "Pending"]]
-        self.member_table_page("Payments", "Review invoices and payment status", rows, ["Invoice", "Member", "Plan", "Amount", "Status"])
-
     def page_trainers(self):
         rows = [["T-01", "Neha Kapoor", "Strength & Conditioning", "18 members"], ["T-02", "Arjun Singh", "CrossFit", "15 members"], ["T-03", "Meera Das", "Yoga & Mobility", "22 members"]]
         self.member_table_page("Trainers", "Manage fitness professionals and assignments", rows, ["Trainer ID", "Name", "Specialisation", "Active Clients"])
-
-    def page_reports(self):
-        wrap = tk.Frame(self.content, bg=BG); wrap.pack(fill="both", expand=True, padx=32, pady=25)
-        self.section_header(wrap, "Reports", "Quick summaries for the current month").pack(anchor="w", pady=(0, 20))
-        reports = [("Membership Summary", "Plan-wise active and expiring members"), ("Revenue Report", "Payments received and pending balances"), ("Attendance Report", "Daily check-in trends and engagement")]
-        for title, desc in reports:
-            r = tk.Frame(wrap, bg=WHITE, highlightbackground=LINE, highlightthickness=1); r.pack(fill="x", pady=7)
-            tk.Label(r, text="▥", bg=WHITE, fg=TEAL, font=("Segoe UI", 20)).pack(side="left", padx=20, pady=15)
-            tx = tk.Frame(r, bg=WHITE); tx.pack(side="left", fill="x", expand=True)
-            tk.Label(tx, text=title, bg=WHITE, fg=NAVY, font=("Segoe UI", 11, "bold")).pack(anchor="w", pady=(16, 1))
-            tk.Label(tx, text=desc, bg=WHITE, fg=MUTED, font=("Segoe UI", 9)).pack(anchor="w", pady=(0, 15))
-            self.button(r, "Generate", lambda t=title: self.info("Report ready", f"{t} generated for preview. No file is saved in this prototype."), False).pack(side="right", padx=20)
 
     def page_settings(self):
         wrap = tk.Frame(self.content, bg=BG); wrap.pack(fill="both", expand=True, padx=32, pady=25)
@@ -262,16 +227,6 @@ class GymApp(tk.Tk):
             messagebox.showinfo("Member added", f"{name} has been added for this session.", parent=self)
         self.button(top, "Cancel", top.destroy, False).grid(row=6, column=0, padx=28, pady=(0, 25), sticky="w")
         self.button(top, "Add Member", save).grid(row=6, column=1, padx=28, pady=(0, 25), sticky="e")
-
-    def open_checkin(self):
-        top = tk.Toplevel(self); top.title("Record Check-in"); top.configure(bg=WHITE); top.transient(self); top.grab_set(); top.resizable(False, False)
-        tk.Label(top, text="Record Check-in", bg=WHITE, fg=NAVY, font=("Segoe UI", 16, "bold")).pack(anchor="w", padx=28, pady=(24, 6))
-        tk.Label(top, text="Choose a member to add a session check-in.", bg=WHITE, fg=MUTED, font=("Segoe UI", 9)).pack(anchor="w", padx=28, pady=(0, 17))
-        choice = ttk.Combobox(top, values=[f"{x[1]} ({x[0]})" for x in self.members], state="readonly", width=35); choice.current(0); choice.pack(padx=28, pady=(0, 20))
-        def submit():
-            text = choice.get(); name, mid = text.rsplit(" (", 1); self.attendance.insert(0, [name, mid[:-1], "Just now", "Checked in"])
-            top.destroy(); self.show_page("Attendance")
-        self.button(top, "Check In", submit).pack(anchor="e", padx=28, pady=(0, 25))
 
     def info(self, title, message):
         messagebox.showinfo(title, message, parent=self)
